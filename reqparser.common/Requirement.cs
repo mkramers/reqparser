@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace reqparser.common
@@ -8,13 +7,11 @@ namespace reqparser.common
     {
         private readonly List<Specification> m_specifications;
 
-        public Requirement(int _id, string _description) : base(_id, _description)
+        public Requirement(int _id, string _description) : base(_id, _description, "REQ")
         {
             m_specifications = new List<Specification>();
         }
-
-        public override string Prefix => "REQ";
-
+        
         private bool Equals(Requirement _other)
         {
             return base.Equals(_other) && m_specifications.SequenceEqual(_other.m_specifications);
@@ -39,11 +36,6 @@ namespace reqparser.common
         public void AddSpecification(Specification _specification)
         {
             m_specifications.Add(_specification);
-        }
-
-        public IReadOnlyCollection<Specification> GetSpecifications()
-        {
-            return new ReadOnlyCollection<Specification>(m_specifications);
         }
     }
 }

@@ -114,7 +114,6 @@ namespace reqparser.common
                     int id = int.Parse(specificationMatch.Value.Split('-').Last());
 
                     //ensure next line is blank
-                    //i++;
                     line = lines[++i];
                     if (!string.IsNullOrWhiteSpace(line))
                     {

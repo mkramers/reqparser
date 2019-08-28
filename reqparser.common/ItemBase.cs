@@ -2,8 +2,11 @@
 {
     public abstract class ItemBase
     {
-        protected ItemBase(int _id, string _description)
+        private readonly string m_prefix;
+
+        protected ItemBase(int _id, string _description, string _prefix)
         {
+            m_prefix = _prefix;
             Id = _id;
             Description = _description;
         }
@@ -11,8 +14,7 @@
         public int Id { get; }
 
         public string Description { get; }
-        public abstract string Prefix { get; }
-        public string Label => $"{Prefix}-{Id:000}";
+        public string Label => $"{m_prefix}-{Id:000}";
 
         protected bool Equals(ItemBase _other)
         {
@@ -21,9 +23,6 @@
 
         public override bool Equals(object _obj)
         {
-            if (ReferenceEquals(null, _obj)) return false;
-            if (ReferenceEquals(this, _obj)) return true;
-            if (_obj.GetType() != GetType()) return false;
             return Equals((ItemBase) _obj);
         }
 

@@ -8,12 +8,10 @@ namespace reqparser.common
     {
         private readonly List<Requirement> m_requirements;
 
-        public UserNeed(int _id, string _description) : base(_id, _description)
+        public UserNeed(int _id, string _description) : base(_id, _description, "UN")
         {
             m_requirements = new List<Requirement>();
         }
-
-        public override string Prefix => "UN";
 
         private bool Equals(UserNeed _other)
         {
