@@ -39,7 +39,11 @@ namespace reqparser.common
                     while (i < lines.Length)
                     {
                         line = lines[i];
-                        if (line.StartsWith("#")) break;
+                        if (line.StartsWith("#"))
+                        {
+                            i--;
+                            break;
+                        }
 
                         descriptionBuilder.AppendLine(line);
                         i++;
@@ -89,7 +93,11 @@ namespace reqparser.common
                     while (i < lines.Length)
                     {
                         line = lines[i];
-                        if (line.StartsWith("#")) break;
+                        if (line.StartsWith("#"))
+                        {
+                            i--;
+                            break;
+                        }
 
                         descriptionBuilder.AppendLine(line);
                         i++;

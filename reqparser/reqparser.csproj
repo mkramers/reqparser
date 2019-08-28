@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\reqparser.common\reqparser.common.csproj" />
   </ItemGroup>
 
 </Project>
