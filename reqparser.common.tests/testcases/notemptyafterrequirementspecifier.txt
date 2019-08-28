@@ -19,13 +19,6 @@ First requirement
 ## Specifications
 
 ### SPEC-001
-
 #### REQ-001
 
 First spec
-
-### SPEC-002
-
-#### REQ-001
-
-Second spec

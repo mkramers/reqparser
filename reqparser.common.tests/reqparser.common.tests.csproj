@@ -7,10 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="testcases\norequirementforspecification.txt" />
+    <None Remove="testcases\notemptyafterrequirementspecifier.txt" />
+    <None Remove="testcases\notemptyafterspecificationspecifier.txt" />
+    <None Remove="testcases\nouserneedforrequirement.txt" />
+    <None Remove="testcases\parentrequirementdoesnotexist.txt" />
+    <None Remove="testcases\parentuserneeddoesnotexist.txt" />
     <None Remove="testcases\sample.txt" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="testcases\notemptyafterspecificationspecifier.txt" />
+    <EmbeddedResource Include="testcases\norequirementforspecification.txt" />
+    <EmbeddedResource Include="testcases\parentrequirementdoesnotexist.txt" />
+    <EmbeddedResource Include="testcases\parentuserneeddoesnotexist.txt" />
+    <EmbeddedResource Include="testcases\nouserneedforrequirement.txt" />
+    <EmbeddedResource Include="testcases\notemptyafterrequirementspecifier.txt" />
     <EmbeddedResource Include="testcases\sample.txt" />
   </ItemGroup>
 

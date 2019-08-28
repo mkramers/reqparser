@@ -107,7 +107,7 @@ namespace reqparser.common
 
                     parentUserNeed.AddRequirement(requirement);
                 }
-                
+
                 Match specificationMatch = Regex.Match(line, @"^### SPEC-[0-9]+$");
                 if (specificationMatch.Success)
                 {

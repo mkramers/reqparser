@@ -20,7 +20,7 @@ First requirement
 
 ### SPEC-001
 
-#### REQ-001
+#### REQ-006
 
 First spec
 

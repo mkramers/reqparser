@@ -55,5 +55,13 @@ namespace reqparser.common.tests
             bool isEqual = a.Equals(a);
             Assert.That(isEqual, Is.True);
         }
+        
+        [Test]
+        public void LabelIsCorrect()
+        {
+            Requirement a = new Requirement(0, "test");
+
+            Assert.That(a.Label, Is.EqualTo("REQ-000"));
+        }
     }
 }

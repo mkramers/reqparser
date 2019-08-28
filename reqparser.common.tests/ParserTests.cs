@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -7,126 +7,6 @@ using NUnit.Framework;
 namespace reqparser.common.tests
 {
     [TestFixture]
-    public class UserNeedTests
-    {
-        [Test]
-        public void AreEqual()
-        {
-            UserNeed a = new UserNeed(0, "test");
-            UserNeed b = new UserNeed(0, "test");
-
-            bool isEqual = a.Equals(b);
-            Assert.That(isEqual, Is.True);
-        }
-
-        [Test]
-        public void OtherTypeNotEqual()
-        {
-            UserNeed a = new UserNeed(0, "test");
-
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            bool isEqual = a.Equals(0);
-            Assert.That(isEqual, Is.False);
-        }
-
-        [Test]
-        public void NullNotEqual()
-        {
-            UserNeed a = new UserNeed(0, "test");
-            
-            bool isEqual = a.Equals(null);
-            Assert.That(isEqual, Is.False);
-        }
-
-        [Test]
-        public void SameReferenceIsEqual()
-        {
-            UserNeed a = new UserNeed(0, "test");
-
-            // ReSharper disable once EqualExpressionComparison
-            bool isEqual = a.Equals(a);
-            Assert.That(isEqual, Is.True);
-        }
-        [Test]
-        public void HashCodesAreDifferent()
-        {
-            UserNeed a = new UserNeed(0, "test");
-            UserNeed b = new UserNeed(0, "test2");
-
-            int hashCodeA = a.GetHashCode();
-            int hashCodeB = b.GetHashCode();
-
-            Assert.That(hashCodeA, Is.Not.EqualTo(hashCodeB));
-        }
-    }
-
-    [TestFixture]
-    public class RequirementTests
-    {
-        [Test]
-        public void AreEqual()
-        {
-            Requirement a = new Requirement(0, "test");
-            Requirement b = new Requirement(0, "test");
-
-            bool isEqual = a.Equals(b);
-            Assert.That(isEqual, Is.True);
-        }
-
-        [Test]
-        public void OtherTypeNotEqual()
-        {
-            Requirement a = new Requirement(0, "test");
-
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            bool isEqual = a.Equals(0);
-            Assert.That(isEqual, Is.False);
-        }
-
-        [Test]
-        public void NullNotEqual()
-        {
-            Requirement a = new Requirement(0, "test");
-
-            bool isEqual = a.Equals(null);
-            Assert.That(isEqual, Is.False);
-        }
-
-        [Test]
-        public void SameReferenceIsEqual()
-        {
-            Requirement a = new Requirement(0, "test");
-
-            // ReSharper disable once EqualExpressionComparison
-            bool isEqual = a.Equals(a);
-            Assert.That(isEqual, Is.True);
-        }
-        [Test]
-        public void HashCodesAreDifferent()
-        {
-            Requirement a = new Requirement(0, "test");
-            Requirement b = new Requirement(0, "test2");
-
-            int hashCodeA = a.GetHashCode();
-            int hashCodeB = b.GetHashCode();
-
-            Assert.That(hashCodeA, Is.Not.EqualTo(hashCodeB));
-        }
-    }
-
-    [TestFixture]
-    public class ThrowingParserErrorHandlerTests
-    {
-        [Test]
-        public void Throws()
-        {
-            ThrowingParserErrorHandler throwingParserErrorHandler = new ThrowingParserErrorHandler();
-
-            Assert.Throws<Exception>(() => throwingParserErrorHandler.ThrowError(0, "error"));
-        }
-    }
-
-    [TestFixture]
     public class ParserTests
     {
         private static string GetEmbeddedResource(string _resourceName, Assembly _assembly)
@@ -134,9 +14,6 @@ namespace reqparser.common.tests
             _resourceName = FormatResourceName(_assembly, _resourceName);
             using (Stream resourceStream = _assembly.GetManifestResourceStream(_resourceName))
             {
-                if (resourceStream == null)
-                    return null;
-
                 using (StreamReader reader = new StreamReader(resourceStream))
                 {
                     return reader.ReadToEnd();
@@ -173,6 +50,42 @@ namespace reqparser.common.tests
             IEnumerable<UserNeed> actualUserNeeds = parser.Parse(sampleText);
 
             Assert.That(actualUserNeeds, Is.EquivalentTo(expectedUserNeeds));
+        }
+
+        [Test, TestCaseSource(nameof(FailureTestCases))]
+        public void FailsWithoutEmptyLineAfterRequirementSpecifier(string _textResourceName, int _expectedFailLine)
+        {
+            string sampleText = GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
+
+            PseudoParserErrorHandler errorHandler = new PseudoParserErrorHandler();
+            Parser parser = new Parser(errorHandler);
+
+            parser.Parse(sampleText);
+
+            Assert.That(errorHandler.LineNumber, Is.EqualTo(_expectedFailLine));
+        }
+
+        public static IEnumerable FailureTestCases
+        {
+            get
+            {
+                yield return new TestCaseData("testcases/parentrequirementdoesnotexist.txt", 22).SetName("parentrequirementdoesnotexist");
+                yield return new TestCaseData("testcases/norequirementforspecification.txt", 22).SetName("norequirementforspecification");
+                yield return new TestCaseData("testcases/notemptyafterspecificationspecifier.txt", 13).SetName("notemptyafterspecificationspecifier");
+                yield return new TestCaseData("testcases/notemptyafterrequirementspecifier.txt", 21).SetName("notemptyafterrequirementspecifier");
+                yield return new TestCaseData("testcases/nouserneedforrequirement.txt", 14).SetName("nouserneedforrequirement");
+                yield return new TestCaseData("testcases/parentuserneeddoesnotexist.txt", 14).SetName("parentuserneeddoesnotexist");
+            }
+        }
+    }
+
+    public class PseudoParserErrorHandler : IParserErrorHandler
+    {
+        public int LineNumber { get; private set; }
+
+        public void ThrowError(int _lineNumber, string _message)
+        {
+            LineNumber = _lineNumber;
         }
     }
 }

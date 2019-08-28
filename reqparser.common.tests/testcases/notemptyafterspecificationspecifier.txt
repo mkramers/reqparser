@@ -11,7 +11,6 @@ First user need
 ## Requirements
 
 ### REQ-001
-
 #### UN-001
 
 First requirement
@@ -23,9 +22,3 @@ First requirement
 #### REQ-001
 
 First spec
-
-### SPEC-002
-
-#### REQ-001
-
-Second spec

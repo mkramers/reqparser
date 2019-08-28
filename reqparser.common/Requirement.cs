@@ -11,7 +11,7 @@ namespace reqparser.common
         {
             m_specifications = new List<Specification>();
         }
-        
+
         private bool Equals(Requirement _other)
         {
             return base.Equals(_other) && m_specifications.SequenceEqual(_other.m_specifications);
