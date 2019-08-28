@@ -53,7 +53,7 @@ namespace reqparser.common.tests
         }
 
         [Test, TestCaseSource(nameof(FailureTestCases))]
-        public void FailsWithoutEmptyLineAfterRequirementSpecifier(string _textResourceName, int _expectedFailLine)
+        public void TestFailureMechanisms(string _textResourceName, int _expectedFailLine)
         {
             string sampleText = GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
 
