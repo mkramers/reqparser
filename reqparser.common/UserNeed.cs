@@ -39,7 +39,7 @@ namespace reqparser.common
             m_requirements.Add(_requirement);
         }
 
-        public IReadOnlyCollection<Requirement> GetRequirements()
+        public IEnumerable<Requirement> GetRequirements()
         {
             return new ReadOnlyCollection<Requirement>(m_requirements);
         }

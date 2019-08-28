@@ -4,7 +4,7 @@ using reqparser.common;
 
 namespace reqparser
 {
-    internal class Program
+    internal static class Program
     {
         private static void Main()
         {

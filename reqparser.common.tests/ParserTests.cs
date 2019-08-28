@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -14,6 +15,11 @@ namespace reqparser.common.tests
             _resourceName = FormatResourceName(_assembly, _resourceName);
             using (Stream resourceStream = _assembly.GetManifestResourceStream(_resourceName))
             {
+                if (resourceStream == null)
+                {
+                    throw new NullReferenceException($"Resource {_resourceName} not found");
+                }
+
                 using (StreamReader reader = new StreamReader(resourceStream))
                 {
                     return reader.ReadToEnd();
@@ -65,8 +71,9 @@ namespace reqparser.common.tests
             Assert.That(errorHandler.LineNumber, Is.EqualTo(_expectedFailLine));
         }
 
-        public static IEnumerable FailureTestCases
+        private static IEnumerable FailureTestCases
         {
+            // ReSharper disable once UnusedMember.Local
             get
             {
                 yield return new TestCaseData("testcases/parentrequirementdoesnotexist.txt", 22).SetName("parentrequirementdoesnotexist");
