@@ -33,19 +33,33 @@ namespace reqparser.common.tests
                        .Replace("\\", ".")
                        .Replace("/", ".");
         }
-
-        [Test]
-        public void ParsesCorrectly()
+        private static IEnumerable SampleTestCases
         {
-            string sampleText = GetEmbeddedResource("testcases/sample.txt", Assembly.GetExecutingAssembly());
+            // ReSharper disable once UnusedMember.Local
+            get
+            {
+                yield return new TestCaseData("testcases/sample.txt");
+                yield return new TestCaseData("testcases/outoforder.txt");
+            }
+        }
+
+        [Test, TestCaseSource(nameof(SampleTestCases))]
+        public void ParsesCorrectly(string _textResourceName)
+        {
+            string sampleText = GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
 
             Specification specification = new Specification(1, "First spec");
+            Specification secondSpecification = new Specification(2, "Second spec");
 
             Requirement requirement = new Requirement(1, "First requirement");
             requirement.AddSpecification(specification);
+            requirement.AddSpecification(secondSpecification);
+
+            Requirement otherRequirement = new Requirement(2, "Second requirement");
 
             UserNeed userNeed = new UserNeed(1, "First user need");
             userNeed.AddRequirement(requirement);
+            userNeed.AddRequirement(otherRequirement);
 
             List<UserNeed> expectedUserNeeds = new List<UserNeed>
             {
