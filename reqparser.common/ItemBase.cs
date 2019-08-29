@@ -5,6 +5,7 @@
         int Id { get; }
         string Description { get; }
         string Label { get; }
+        void SortById();
     }
 
     public abstract class ItemBase : IItemBase

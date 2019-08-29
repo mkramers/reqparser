@@ -47,31 +47,7 @@ namespace reqparser.common
 
         public override void SortById()
         {
-            Requirement[] orderedRequirements =
-                m_requirements.OrderBy(_requirement => _requirement.Id).ToArray();
-
-            m_requirements.Clear();
-            m_requirements.AddRange(orderedRequirements);
-
-            foreach (Requirement requirement in orderedRequirements)
-            {
-                requirement.SortById();
-            }
-        }
-    }
-
-    public static class UserNeedExtensions
-    {
-        public static IEnumerable<UserNeed> OrderById(this IEnumerable<UserNeed> _userNeeds)
-        {
-            UserNeed[] orderedUsersNeeds = _userNeeds.OrderBy(_userNeed => _userNeed.Id).ToArray();
-
-            foreach (UserNeed userNeed in orderedUsersNeeds)
-            {
-                userNeed.SortById();
-            }
-
-            return orderedUsersNeeds;
+            m_requirements.SortByIdRecursive();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 
@@ -61,17 +62,17 @@ namespace reqparser.common.tests
             userNeed.AddRequirement(requirement);
             userNeed.AddRequirement(otherRequirement);
 
-            IEnumerable<UserNeed> expectedUserNeeds = new List<UserNeed>
+            List<UserNeed> expectedUserNeeds = new List<UserNeed>
             {
                 userNeed
             };
 
             Parser parser = new Parser();
-            IEnumerable<UserNeed> actualUserNeeds = parser.Parse(sampleText);
+            List<UserNeed> actualUserNeeds = parser.Parse(sampleText).ToList();
 
             //sort must occur for equality
-            expectedUserNeeds = expectedUserNeeds.OrderById();
-            actualUserNeeds = actualUserNeeds.OrderById();
+            expectedUserNeeds.SortByIdRecursive();
+            actualUserNeeds.SortByIdRecursive();
 
             Assert.That(actualUserNeeds, Is.EquivalentTo(expectedUserNeeds));
         }
