@@ -91,7 +91,7 @@ namespace reqparser.common.tests
 
             Parser parser = new Parser();
             List<UserNeed> actualUserNeeds = parser.Parse(sampleText).ToList();
-            
+
             Assert.That(actualUserNeeds, Is.EquivalentTo(expectedUserNeeds));
         }
 
@@ -145,6 +145,25 @@ namespace reqparser.common.tests
             sortedUserNeeds.SortByIdRecursive();
 
             Assert.That(sortedUserNeeds, Is.EquivalentTo(orderedUserNeeds));
+        }
+    }
+
+    [TestFixture]
+    public class TraceabilityGeneratorTests
+    {
+        [Test]
+        public void GeneratesTraceabilityCorrectly()
+        {
+            Specification specification = new Specification(0, "");
+            Requirement requirement = new Requirement(0, "");
+            requirement.AddSpecification(specification);
+            UserNeed userNeed = new UserNeed(0, "");
+            userNeed.AddRequirement(requirement);
+
+            string actualTraceabilityText = TraceabilityGenerator.Generate(new[] { userNeed });
+            string expectedTraceabilityText = $"UN-000{Environment.NewLine}\tREQ-000{Environment.NewLine}\t\tSPEC-000";
+
+            Assert.That(actualTraceabilityText, Is.EqualTo(expectedTraceabilityText));
         }
     }
 }

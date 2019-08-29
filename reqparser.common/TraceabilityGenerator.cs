@@ -15,19 +15,17 @@ namespace reqparser.common
 
                 foreach (Requirement requirement in userNeed.GetRequirements())
                 {
-                    string requirementText = requirement.Label;
-                    string indentTextLines = TextUtilities.IndentTextLines(requirementText, 1);
+                    string indentTextLines = TextUtilities.IndentTextLines(requirement.Label, 1);
                     traceabilityText.AppendLine(indentTextLines);
 
                     foreach (Specification specification in requirement.GetSpecifications())
                     {
-                        string specificationText = specification.Label;
-                        traceabilityText.AppendLine(TextUtilities.IndentTextLines(specificationText, 2));
+                        traceabilityText.AppendLine(TextUtilities.IndentTextLines(specification.Label, 2));
                     }
                 }
             }
 
-            return traceabilityText.ToString();
+            return traceabilityText.ToString().Trim();
         }
     }
 }
