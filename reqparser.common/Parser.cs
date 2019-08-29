@@ -6,6 +6,10 @@ using System.Text.RegularExpressions;
 
 namespace reqparser.common
 {
+    //todo 
+    // - validate text blocks and find missing lines
+    // - validate tree for missing/multi parents
+    // - fix errors based on validation
     public class Parser
     {
         private readonly IParserErrorHandler m_errorHandler;
@@ -19,153 +23,137 @@ namespace reqparser.common
         {
         }
 
-        public IEnumerable<UserNeed> Parse(string _text)
+        private static IEnumerable<IReadOnlyList<string>> GetItemTextBlocks(IEnumerable<string> _lines, string _blockStartString)
         {
-            List<UserNeed> userNeeds = new List<UserNeed>();
+            string[] lines = _lines as string[] ?? _lines.ToArray();
 
-            string[] lines = _text.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
-            for (int i = 0; i < lines.Length; i++)
+            List<List<string>> textBlocks = new List<List<string>>();
+
+            List<string> currentTextBlock = null;
+
+            foreach (string line in lines)
             {
-                string line = lines[i];
-
-                Match userNeedMatch = Regex.Match(line, @"^### UN-[0-9]+$");
-                if (userNeedMatch.Success)
+                if (line.StartsWith(_blockStartString))
                 {
-                    i++;
-
-                    int id = int.Parse(userNeedMatch.Value.Split('-').Last());
-
-                    StringBuilder descriptionBuilder = new StringBuilder();
-                    while (i < lines.Length)
+                    if (currentTextBlock != null)
                     {
-                        line = lines[i];
-                        if (line.StartsWith("#"))
-                        {
-                            i--;
-                            line = lines[i];
-                            break;
-                        }
-
-                        descriptionBuilder.AppendLine(line);
-                        i++;
+                        textBlocks.Add(currentTextBlock);
                     }
 
-                    UserNeed userNeed = new UserNeed(id, descriptionBuilder.ToString().Trim());
-                    userNeeds.Add(userNeed);
+                    currentTextBlock = new List<string> { line };
                 }
-
-                Match requirementMatch = Regex.Match(line, @"^### REQ-[0-9]+$");
-                if (requirementMatch.Success)
+                else
                 {
-                    int id = int.Parse(requirementMatch.Value.Split('-').Last());
-
-                    //ensure next line is blank
-                    i++;
-                    line = lines[i];
-                    if (!string.IsNullOrWhiteSpace(line))
-                    {
-                        ThrowError(i, "Expected empty line after requirement specifier");
-                        return null;
-                    }
-
-                    //ensure next is userneed reference
-                    i++;
-                    line = lines[i];
-
-                    Match parentUserNeedMatch = Regex.Match(line, @"^#### UN-[0-9]+$");
-                    if (!parentUserNeedMatch.Success)
-                    {
-                        ThrowError(i, "Expected user need reference for requirement");
-                        return null;
-                    }
-
-                    int parentUserNeedId = int.Parse(parentUserNeedMatch.Value.Split('-').Last());
-
-                    UserNeed parentUserNeed = userNeeds.Find(_userNeed => _userNeed.Id == parentUserNeedId);
-                    if (parentUserNeed == null)
-                    {
-                        ThrowError(i, "No parent user need exists for requirement");
-                        return null;
-                    }
-
-                    i++;
-
-                    StringBuilder descriptionBuilder = new StringBuilder();
-                    while (i < lines.Length)
-                    {
-                        line = lines[i];
-                        if (line.StartsWith("#"))
-                        {
-                            i--;
-                            line = lines[i];
-                            break;
-                        }
-
-                        descriptionBuilder.AppendLine(line);
-                        i++;
-                    }
-
-                    Requirement requirement = new Requirement(id, descriptionBuilder.ToString().Trim());
-
-                    parentUserNeed.AddRequirement(requirement);
-                }
-
-                Match specificationMatch = Regex.Match(line, @"^### SPEC-[0-9]+$");
-                if (specificationMatch.Success)
-                {
-                    int id = int.Parse(specificationMatch.Value.Split('-').Last());
-
-                    //ensure next line is blank
-                    line = lines[++i];
-                    if (!string.IsNullOrWhiteSpace(line))
-                    {
-                        ThrowError(i, "Expected empty line after specification specifier");
-                        return null;
-                    }
-
-                    //ensure next is requirement reference
-                    line = lines[++i];
-
-                    Match parentRequirementMatch = Regex.Match(line, @"^#### REQ-[0-9]+$");
-                    if (!parentRequirementMatch.Success)
-                    {
-                        ThrowError(i, "Expected requirement reference for specification");
-                        return null;
-                    }
-
-                    int parentRequirementId = int.Parse(parentRequirementMatch.Value.Split('-').Last());
-
-                    List<Requirement> requirements = userNeeds.SelectMany(_userNeed => _userNeed.GetRequirements())
-                        .Distinct().ToList();
-                    Requirement parentRequirement =
-                        requirements.Find(_requirement => _requirement.Id == parentRequirementId);
-                    if (parentRequirement == null)
-                    {
-                        ThrowError(i, "No parent requirement exists for specification");
-                        return null;
-                    }
-
-                    i++;
-
-                    StringBuilder descriptionBuilder = new StringBuilder();
-                    while (i < lines.Length)
-                    {
-                        line = lines[i];
-                        if (line.StartsWith("#"))
-                        {
-                            i--;
-                            break;
-                        }
-
-                        descriptionBuilder.AppendLine(line);
-                        i++;
-                    }
-
-                    Specification specification = new Specification(id, descriptionBuilder.ToString().Trim());
-
-                    parentRequirement.AddSpecification(specification);
+                    currentTextBlock?.Add(line);
                 }
             }
+
+            if (currentTextBlock != null)
+            {
+                textBlocks.Add(currentTextBlock);
+            }
+
+            return textBlocks;
+        }
+
+        private IEnumerable<UserNeed> ParseTree(IEnumerable<IReadOnlyList<string>> _textBlocks)
+        {
+            List<UserNeed> userNeeds = new List<UserNeed>();
+            List<(Requirement Requirement, string ParentLabel)> requirementsDetails = new List<(Requirement, string)>();
+            List<(Specification Specification, string ParentLabel)> specificationsDetails = new List<(Specification, string)>();
+
+            foreach (IReadOnlyList<string> textBlock in _textBlocks)
+            {
+                if (TryGetItemDetails(textBlock, "UN", out (int Id, string Description, string ParentLabel) userNeedDetails))
+                {
+                    UserNeed userNeed = new UserNeed(userNeedDetails.Id, userNeedDetails.Description);
+                    userNeeds.Add(userNeed);
+                }
+                else if (TryGetItemDetails(textBlock, "REQ", out (int Id, string Description, string ParentLabel) requirementDetails))
+                {
+                    Requirement requirement = new Requirement(requirementDetails.Id, requirementDetails.Description);
+                    requirementsDetails.Add((requirement, requirementDetails.ParentLabel));
+                }
+                else if (TryGetItemDetails(textBlock, "SPEC", out (int Id, string Description, string ParentLabel) specificationDetails))
+                {
+                    Specification specification = new Specification(specificationDetails.Id, specificationDetails.Description);
+                    specificationsDetails.Add((specification, specificationDetails.ParentLabel));
+                }
+                else
+                {
+                    ThrowError(-1, $"Failed to parse text block!");
+                }
+            }
+
+            Requirement[] requirements = requirementsDetails.Select(_requirement => _requirement.Requirement).ToArray();
+
+            foreach ((Specification specification, string parentLabel) in specificationsDetails)
+            {
+                Requirement requirement = requirements.FirstOrDefault(_requirement => _requirement.Label == parentLabel);
+                requirement?.AddSpecification(specification);
+            }
+
+            foreach ((Requirement requirement, string parentLabel) in requirementsDetails)
+            {
+                UserNeed userNeed = userNeeds.FirstOrDefault(_userNeed => _userNeed.Label == parentLabel);
+                userNeed?.AddRequirement(requirement);
+            }
+
+            return userNeeds;
+        }
+
+        private static bool TryGetItemDetails(IReadOnlyList<string> _lines, string _prefix, out (int Id, string Description, string ParentLabel) _details)
+        {
+            _details = (0, "", "");
+
+            string firstLine = _lines.First();
+
+            Match specificationsMatch = Regex.Match(firstLine, $@"^### {_prefix}-[0-9]+$");
+            if (!specificationsMatch.Success)
+            {
+                return false;
+            }
+
+            _details.Id = int.Parse(specificationsMatch.Value.Split('-').Last());
+
+            string parentLine = _lines[1];
+            const string parentPrefix = "#### ";
+            bool hasParent = parentLine.StartsWith(parentPrefix);
+            if (hasParent)
+            {
+                _details.ParentLabel = parentLine.Substring(parentPrefix.Length, parentLine.Length - parentPrefix.Length);
+            }
+
+            List<string> remainingText = _lines.Skip(hasParent ? 2 : 1).ToList();
+
+            _details.Description = GetDescriptionFromTextBlock(remainingText);
+
+            return true;
+        }
+
+        private static string GetDescriptionFromTextBlock(IEnumerable<string> _textBlock)
+        {
+            StringBuilder descriptionBuilder = new StringBuilder();
+            foreach (string line in _textBlock)
+            {
+                if (line.StartsWith("#"))
+                {
+                    break;
+                }
+
+                descriptionBuilder.AppendLine(line);
+            }
+
+            string description = descriptionBuilder.ToString().Trim();
+            return description;
+        }
+
+        public IEnumerable<UserNeed> Parse(string _text)
+        {
+            string[] lines = _text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+            IEnumerable<IReadOnlyList<string>> textBlocks = GetItemTextBlocks(lines, "### ");
+            List<UserNeed> userNeeds = ParseTree(textBlocks).ToList();
 
             userNeeds.SortByIdRecursive();
 
