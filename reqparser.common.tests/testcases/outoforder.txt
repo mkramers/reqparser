@@ -8,11 +8,11 @@ First user need
 
 First requirement
 
-### SPEC-001
+### SPEC-002
 
 #### REQ-001
 
-First spec
+Second spec
 
 ### REQ-002
 
@@ -20,8 +20,8 @@ First spec
 
 Second requirement
 
-### SPEC-002
+### SPEC-001
 
 #### REQ-001
 
-Second spec
+First spec

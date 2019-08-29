@@ -5,5 +5,9 @@
         public Specification(int _id, string _description) : base(_id, _description, "SPEC")
         {
         }
+
+        public override void SortById()
+        {
+        }
     }
 }

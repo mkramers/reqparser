@@ -61,13 +61,17 @@ namespace reqparser.common.tests
             userNeed.AddRequirement(requirement);
             userNeed.AddRequirement(otherRequirement);
 
-            List<UserNeed> expectedUserNeeds = new List<UserNeed>
+            IEnumerable<UserNeed> expectedUserNeeds = new List<UserNeed>
             {
                 userNeed
             };
 
             Parser parser = new Parser();
             IEnumerable<UserNeed> actualUserNeeds = parser.Parse(sampleText);
+
+            //sort must occur for equality
+            expectedUserNeeds = expectedUserNeeds.OrderById();
+            actualUserNeeds = actualUserNeeds.OrderById();
 
             Assert.That(actualUserNeeds, Is.EquivalentTo(expectedUserNeeds));
         }

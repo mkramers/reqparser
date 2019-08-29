@@ -34,6 +34,20 @@ namespace reqparser.common
             }
         }
 
+        public override void SortById()
+        {
+            Specification[] orderedSpecifications =
+                m_specifications.OrderBy(_specification => _specification.Id).ToArray();
+
+            m_specifications.Clear();
+            m_specifications.AddRange(orderedSpecifications);
+
+            foreach (Specification specification in orderedSpecifications)
+            {
+                specification.SortById();
+            }
+        }
+
         public void AddSpecification(Specification _specification)
         {
             m_specifications.Add(_specification);

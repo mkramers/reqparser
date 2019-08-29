@@ -1,6 +1,13 @@
 ﻿namespace reqparser.common
 {
-    public abstract class ItemBase
+    public interface IItemBase
+    {
+        int Id { get; }
+        string Description { get; }
+        string Label { get; }
+    }
+
+    public abstract class ItemBase : IItemBase
     {
         private readonly string m_prefix;
 
@@ -33,5 +40,7 @@
                 return (Id * 397) ^ (Description != null ? Description.GetHashCode() : 0);
             }
         }
+
+        public abstract void SortById();
     }
 }
