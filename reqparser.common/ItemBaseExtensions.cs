@@ -4,8 +4,7 @@
     {
         public static string GetDisplayString(this ItemBase _itemBase)
         {
-            string indentedDescription = TextUtilities.IndentTextLines(_itemBase.Description, 1);
-            return $"{_itemBase.Label}\n{indentedDescription}";
+            return _itemBase.Label;
         }
     }
 }
