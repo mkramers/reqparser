@@ -172,9 +172,10 @@ namespace reqparser.common
             return userNeeds;
         }
 
-        private void ThrowError(int _lineNumber, string _message)
+        private void ThrowError(int _lineIndex, string _message)
         {
-            m_errorHandler.ThrowError(_lineNumber, _message);
+            int lineNumber = _lineIndex + 1;
+            m_errorHandler.ThrowError(lineNumber, _message);
         }
     }
 }

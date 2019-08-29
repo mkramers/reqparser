@@ -24,12 +24,12 @@ namespace reqparser.common.tests
             // ReSharper disable once UnusedMember.Local
             get
             {
-                yield return new TestCaseData("testcases/parentrequirementdoesnotexist.txt", 22);
-                yield return new TestCaseData("testcases/norequirementforspecification.txt", 22);
-                yield return new TestCaseData("testcases/notemptyafterspecificationspecifier.txt", 13);
-                yield return new TestCaseData("testcases/notemptyafterrequirementspecifier.txt", 21);
-                yield return new TestCaseData("testcases/nouserneedforrequirement.txt", 14);
-                yield return new TestCaseData("testcases/parentuserneeddoesnotexist.txt", 14);
+                yield return new TestCaseData("testcases/parentrequirementdoesnotexist.txt", 23);
+                yield return new TestCaseData("testcases/norequirementforspecification.txt", 23);
+                yield return new TestCaseData("testcases/notemptyafterspecificationspecifier.txt", 14);
+                yield return new TestCaseData("testcases/notemptyafterrequirementspecifier.txt", 22);
+                yield return new TestCaseData("testcases/nouserneedforrequirement.txt", 15);
+                yield return new TestCaseData("testcases/parentuserneeddoesnotexist.txt", 15);
             }
         }
 
