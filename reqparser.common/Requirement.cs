@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace reqparser.common
@@ -36,6 +37,11 @@ namespace reqparser.common
         public void AddSpecification(Specification _specification)
         {
             m_specifications.Add(_specification);
+        }
+
+        public IEnumerable<Specification> GetSpecifications()
+        {
+            return new ReadOnlyCollection<Specification>(m_specifications);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using reqparser.common;
 
@@ -14,6 +15,10 @@ namespace reqparser
 
             Parser parser = new Parser();
             IEnumerable<UserNeed> userNeeds = parser.Parse(fileText);
+
+            string text = TraceabilityGenerator.Generate(userNeeds);
+
+            Console.WriteLine(text);
         }
     }
 }
