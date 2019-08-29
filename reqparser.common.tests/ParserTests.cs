@@ -8,6 +8,43 @@ using NUnit.Framework;
 
 namespace reqparser.common.tests
 {
+    public static class Helpers
+    {
+        public static List<UserNeed> CreateOrderedUserNeeds()
+        {
+            Specification specification = new Specification(1, "First spec");
+            Specification secondSpecification = new Specification(2, "Second spec");
+
+            Requirement requirement = new Requirement(1, "First requirement");
+            requirement.AddSpecification(specification);
+            requirement.AddSpecification(secondSpecification);
+
+            Requirement otherRequirement = new Requirement(2, "Second requirement");
+
+            UserNeed userNeed = new UserNeed(1, "First user need");
+            userNeed.AddRequirement(requirement);
+            userNeed.AddRequirement(otherRequirement);
+            return new[] { userNeed }.ToList();
+        }
+
+        public static List<UserNeed> CreateUnorderUserNeeds()
+        {
+            Specification specification = new Specification(1, "First spec");
+            Specification secondSpecification = new Specification(2, "Second spec");
+
+            Requirement requirement = new Requirement(1, "First requirement");
+            requirement.AddSpecification(secondSpecification);
+            requirement.AddSpecification(specification);
+
+            Requirement secondRequirement = new Requirement(2, "Second requirement");
+
+            UserNeed userNeed = new UserNeed(1, "First user need");
+            userNeed.AddRequirement(secondRequirement);
+            userNeed.AddRequirement(requirement);
+            return new[] { userNeed }.ToList();
+        }
+    }
+
     [TestFixture]
     public class ParserTests
     {
@@ -49,23 +86,7 @@ namespace reqparser.common.tests
         {
             string sampleText = GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
 
-            Specification specification = new Specification(1, "First spec");
-            Specification secondSpecification = new Specification(2, "Second spec");
-
-            Requirement requirement = new Requirement(1, "First requirement");
-            requirement.AddSpecification(specification);
-            requirement.AddSpecification(secondSpecification);
-
-            Requirement otherRequirement = new Requirement(2, "Second requirement");
-
-            UserNeed userNeed = new UserNeed(1, "First user need");
-            userNeed.AddRequirement(requirement);
-            userNeed.AddRequirement(otherRequirement);
-
-            List<UserNeed> expectedUserNeeds = new List<UserNeed>
-            {
-                userNeed
-            };
+            List<UserNeed> expectedUserNeeds = Helpers.CreateOrderedUserNeeds();
 
             Parser parser = new Parser();
             List<UserNeed> actualUserNeeds = parser.Parse(sampleText).ToList();
@@ -112,6 +133,21 @@ namespace reqparser.common.tests
         public void ThrowError(int _lineNumber, string _message)
         {
             LineNumber = _lineNumber;
+        }
+    }
+
+    [TestFixture]
+    public class ItemBaseExtensionsTests
+    {
+        [Test]
+        public void SortsByIdRecursiveCorrectly()
+        {
+            List<UserNeed> orderedUserNeeds = Helpers.CreateOrderedUserNeeds();
+
+            List<UserNeed> sortedUserNeeds = Helpers.CreateUnorderUserNeeds();
+            sortedUserNeeds.SortByIdRecursive();
+
+            Assert.That(sortedUserNeeds, Is.EquivalentTo(orderedUserNeeds));
         }
     }
 }

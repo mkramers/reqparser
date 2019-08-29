@@ -18,10 +18,5 @@ namespace reqparser.common
                 orderedItem.SortById();
             }
         }
-
-        public static string GetDisplayString(this IItemBase _itemBase)
-        {
-            return _itemBase.Label;
-        }
     }
 }

@@ -11,17 +11,17 @@ namespace reqparser.common
 
             foreach (UserNeed userNeed in _userNeeds)
             {
-                traceabilityText.AppendLine(userNeed.GetDisplayString());
+                traceabilityText.AppendLine(userNeed.Label);
 
                 foreach (Requirement requirement in userNeed.GetRequirements())
                 {
-                    string requirementText = requirement.GetDisplayString();
+                    string requirementText = requirement.Label;
                     string indentTextLines = TextUtilities.IndentTextLines(requirementText, 1);
                     traceabilityText.AppendLine(indentTextLines);
 
                     foreach (Specification specification in requirement.GetSpecifications())
                     {
-                        string specificationText = specification.GetDisplayString();
+                        string specificationText = specification.Label;
                         traceabilityText.AppendLine(TextUtilities.IndentTextLines(specificationText, 2));
                     }
                 }
