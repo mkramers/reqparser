@@ -19,9 +19,7 @@ namespace reqparser.common
                     traceabilityText.AppendLine(indentTextLines);
 
                     foreach (Specification specification in requirement.GetSpecifications())
-                    {
                         traceabilityText.AppendLine(TextUtilities.IndentTextLines(specification.Label, 2));
-                    }
                 }
             }
 

@@ -28,6 +28,14 @@ namespace reqparser.common.tests
         }
 
         [Test]
+        public void LabelIsCorrect()
+        {
+            UserNeed a = new UserNeed(0, "test");
+
+            Assert.That(a.Label, Is.EqualTo("UN-000"));
+        }
+
+        [Test]
         public void NullNotEqual()
         {
             UserNeed a = new UserNeed(0, "test");
@@ -54,14 +62,6 @@ namespace reqparser.common.tests
             // ReSharper disable once EqualExpressionComparison
             bool isEqual = a.Equals(a);
             Assert.That(isEqual, Is.True);
-        }
-
-        [Test]
-        public void LabelIsCorrect()
-        {
-            UserNeed a = new UserNeed(0, "test");
-
-            Assert.That(a.Label, Is.EqualTo("UN-000"));
         }
     }
 }

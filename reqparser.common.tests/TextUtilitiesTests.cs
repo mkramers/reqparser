@@ -16,7 +16,7 @@ namespace reqparser.common.tests
 
             Assert.That(actualPrefixedText, Is.EqualTo(expectedPrefixedText));
         }
-        
+
         [Test]
         public void PrefixesTextCorrectly()
         {
@@ -24,7 +24,8 @@ namespace reqparser.common.tests
 
             string text = $"A{Environment.NewLine}\tB{Environment.NewLine}\t\tC";
 
-            string expectedPrefixedText = $"{prefix}A{Environment.NewLine}{prefix}\tB{Environment.NewLine}{prefix}\t\tC";
+            string expectedPrefixedText =
+                $"{prefix}A{Environment.NewLine}{prefix}\tB{Environment.NewLine}{prefix}\t\tC";
             string actualPrefixedText = TextUtilities.PrefixTextLines(prefix, text);
 
             Assert.That(actualPrefixedText, Is.EqualTo(expectedPrefixedText));

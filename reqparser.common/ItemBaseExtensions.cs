@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace reqparser.common
@@ -13,10 +12,7 @@ namespace reqparser.common
             _items.Clear();
             _items.AddRange(orderedItems);
 
-            foreach (T orderedItem in orderedItems)
-            {
-                orderedItem.SortById();
-            }
+            foreach (T orderedItem in orderedItems) orderedItem.SortById();
         }
     }
 }

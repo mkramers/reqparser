@@ -1,13 +1,5 @@
 ﻿namespace reqparser.common
 {
-    public interface IItemBase
-    {
-        int Id { get; }
-        string Description { get; }
-        string Label { get; }
-        void SortById();
-    }
-
     public abstract class ItemBase : IItemBase
     {
         private readonly string m_prefix;
@@ -23,6 +15,8 @@
 
         public string Description { get; }
         public string Label => $"{m_prefix}-{Id:000}";
+
+        public abstract void SortById();
 
         protected bool Equals(ItemBase _other)
         {
@@ -41,7 +35,5 @@
                 return (Id * 397) ^ (Description != null ? Description.GetHashCode() : 0);
             }
         }
-
-        public abstract void SortById();
     }
 }

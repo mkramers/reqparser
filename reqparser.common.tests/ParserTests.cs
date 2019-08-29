@@ -1,74 +1,11 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 
 namespace reqparser.common.tests
 {
-    public static class Helpers
-    {
-        public static IEnumerable<UserNeed> CreateOrderedUserNeeds()
-        {
-            Specification specification = new Specification(1, "First spec");
-            Specification secondSpecification = new Specification(2, "Second spec");
-
-            Requirement requirement = new Requirement(1, "First requirement");
-            requirement.AddSpecification(specification);
-            requirement.AddSpecification(secondSpecification);
-
-            Requirement otherRequirement = new Requirement(2, "Second requirement");
-
-            UserNeed userNeed = new UserNeed(1, "First user need");
-            userNeed.AddRequirement(requirement);
-            userNeed.AddRequirement(otherRequirement);
-            return new[] { userNeed }.ToList();
-        }
-
-        public static List<UserNeed> CreateUnOrderUserNeeds()
-        {
-            Specification specification = new Specification(1, "First spec");
-            Specification secondSpecification = new Specification(2, "Second spec");
-
-            Requirement requirement = new Requirement(1, "First requirement");
-            requirement.AddSpecification(secondSpecification);
-            requirement.AddSpecification(specification);
-
-            Requirement secondRequirement = new Requirement(2, "Second requirement");
-
-            UserNeed userNeed = new UserNeed(1, "First user need");
-            userNeed.AddRequirement(secondRequirement);
-            userNeed.AddRequirement(requirement);
-            return new[] { userNeed }.ToList();
-        }
-
-        public static string GetEmbeddedResource(string _resourceName, Assembly _assembly)
-        {
-            _resourceName = FormatResourceName(_assembly, _resourceName);
-            using (Stream resourceStream = _assembly.GetManifestResourceStream(_resourceName))
-            {
-                if (resourceStream == null)
-                {
-                    throw new NullReferenceException($"Resource {_resourceName} not found");
-                }
-
-                using (StreamReader reader = new StreamReader(resourceStream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-        }
-
-        private static string FormatResourceName(Assembly _assembly, string _resourceName)
-        {
-            return _assembly.GetName().Name + "." + _resourceName.Replace(" ", "_")
-                       .Replace("\\", ".")
-                       .Replace("/", ".");
-        }
-    }
-
     [TestFixture]
     public class ParserTests
     {
@@ -80,19 +17,6 @@ namespace reqparser.common.tests
                 yield return new TestCaseData("testcases/sample.txt");
                 yield return new TestCaseData("testcases/outoforder.txt");
             }
-        }
-
-        [Test, TestCaseSource(nameof(SampleTestCases))]
-        public void ParsesCorrectly(string _textResourceName)
-        {
-            string sampleText = Helpers.GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
-
-            IEnumerable<UserNeed> expectedUserNeeds = Helpers.CreateOrderedUserNeeds();
-
-            Parser parser = new Parser();
-            List<UserNeed> actualUserNeeds = parser.Parse(sampleText).ToList();
-
-            Assert.That(actualUserNeeds, Is.EquivalentTo(expectedUserNeeds));
         }
 
         private static IEnumerable FailureTestCases
@@ -109,7 +33,22 @@ namespace reqparser.common.tests
             }
         }
 
-        [Test, TestCaseSource(nameof(FailureTestCases))]
+        [Test]
+        [TestCaseSource(nameof(SampleTestCases))]
+        public void ParsesCorrectly(string _textResourceName)
+        {
+            string sampleText = Helpers.GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
+
+            IEnumerable<UserNeed> expectedUserNeeds = Helpers.CreateOrderedUserNeeds();
+
+            Parser parser = new Parser();
+            List<UserNeed> actualUserNeeds = parser.Parse(sampleText).ToList();
+
+            Assert.That(actualUserNeeds, Is.EquivalentTo(expectedUserNeeds));
+        }
+
+        [Test]
+        [TestCaseSource(nameof(FailureTestCases))]
         public void TestFailureMechanisms(string _textResourceName, int _expectedFailLine)
         {
             string sampleText = Helpers.GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
@@ -120,50 +59,6 @@ namespace reqparser.common.tests
             parser.Parse(sampleText);
 
             Assert.That(errorHandler.LineNumber, Is.EqualTo(_expectedFailLine));
-        }
-    }
-
-    public class PseudoParserErrorHandler : IParserErrorHandler
-    {
-        public int LineNumber { get; private set; }
-
-        public void ThrowError(int _lineNumber, string _message)
-        {
-            LineNumber = _lineNumber;
-        }
-    }
-
-    [TestFixture]
-    public class ItemBaseExtensionsTests
-    {
-        [Test]
-        public void SortsByIdRecursiveCorrectly()
-        {
-            IEnumerable<UserNeed> orderedUserNeeds = Helpers.CreateOrderedUserNeeds();
-
-            List<UserNeed> sortedUserNeeds = Helpers.CreateUnOrderUserNeeds();
-            sortedUserNeeds.SortByIdRecursive();
-
-            Assert.That(sortedUserNeeds, Is.EquivalentTo(orderedUserNeeds));
-        }
-    }
-
-    [TestFixture]
-    public class TraceabilityGeneratorTests
-    {
-        [Test]
-        public void GeneratesTraceabilityCorrectly()
-        {
-            Specification specification = new Specification(0, "");
-            Requirement requirement = new Requirement(0, "");
-            requirement.AddSpecification(specification);
-            UserNeed userNeed = new UserNeed(0, "");
-            userNeed.AddRequirement(requirement);
-
-            string actualTraceabilityText = TraceabilityGenerator.Generate(new[] { userNeed });
-            string expectedTraceabilityText = $"UN-000{Environment.NewLine}\tREQ-000{Environment.NewLine}\t\tSPEC-000";
-
-            Assert.That(actualTraceabilityText, Is.EqualTo(expectedTraceabilityText));
         }
     }
 }
