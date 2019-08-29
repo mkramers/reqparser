@@ -167,6 +167,8 @@ namespace reqparser.common
                 }
             }
 
+            userNeeds.SortByIdRecursive();
+
             return userNeeds;
         }
 

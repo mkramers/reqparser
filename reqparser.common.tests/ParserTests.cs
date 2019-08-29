@@ -10,7 +10,7 @@ namespace reqparser.common.tests
 {
     public static class Helpers
     {
-        public static List<UserNeed> CreateOrderedUserNeeds()
+        public static IEnumerable<UserNeed> CreateOrderedUserNeeds()
         {
             Specification specification = new Specification(1, "First spec");
             Specification secondSpecification = new Specification(2, "Second spec");
@@ -27,7 +27,7 @@ namespace reqparser.common.tests
             return new[] { userNeed }.ToList();
         }
 
-        public static List<UserNeed> CreateUnorderUserNeeds()
+        public static List<UserNeed> CreateUnOrderUserNeeds()
         {
             Specification specification = new Specification(1, "First spec");
             Specification secondSpecification = new Specification(2, "Second spec");
@@ -87,15 +87,11 @@ namespace reqparser.common.tests
         {
             string sampleText = Helpers.GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
 
-            List<UserNeed> expectedUserNeeds = Helpers.CreateOrderedUserNeeds();
+            IEnumerable<UserNeed> expectedUserNeeds = Helpers.CreateOrderedUserNeeds();
 
             Parser parser = new Parser();
             List<UserNeed> actualUserNeeds = parser.Parse(sampleText).ToList();
-
-            //sort must occur for equality
-            expectedUserNeeds.SortByIdRecursive();
-            actualUserNeeds.SortByIdRecursive();
-
+            
             Assert.That(actualUserNeeds, Is.EquivalentTo(expectedUserNeeds));
         }
 
@@ -104,12 +100,12 @@ namespace reqparser.common.tests
             // ReSharper disable once UnusedMember.Local
             get
             {
-                yield return new TestCaseData("testcases/parentrequirementdoesnotexist.txt", 22).SetName("parentrequirementdoesnotexist");
-                yield return new TestCaseData("testcases/norequirementforspecification.txt", 22).SetName("norequirementforspecification");
-                yield return new TestCaseData("testcases/notemptyafterspecificationspecifier.txt", 13).SetName("notemptyafterspecificationspecifier");
-                yield return new TestCaseData("testcases/notemptyafterrequirementspecifier.txt", 21).SetName("notemptyafterrequirementspecifier");
-                yield return new TestCaseData("testcases/nouserneedforrequirement.txt", 14).SetName("nouserneedforrequirement");
-                yield return new TestCaseData("testcases/parentuserneeddoesnotexist.txt", 14).SetName("parentuserneeddoesnotexist");
+                yield return new TestCaseData("testcases/parentrequirementdoesnotexist.txt", 22);
+                yield return new TestCaseData("testcases/norequirementforspecification.txt", 22);
+                yield return new TestCaseData("testcases/notemptyafterspecificationspecifier.txt", 13);
+                yield return new TestCaseData("testcases/notemptyafterrequirementspecifier.txt", 21);
+                yield return new TestCaseData("testcases/nouserneedforrequirement.txt", 14);
+                yield return new TestCaseData("testcases/parentuserneeddoesnotexist.txt", 14);
             }
         }
 
@@ -143,9 +139,9 @@ namespace reqparser.common.tests
         [Test]
         public void SortsByIdRecursiveCorrectly()
         {
-            List<UserNeed> orderedUserNeeds = Helpers.CreateOrderedUserNeeds();
+            IEnumerable<UserNeed> orderedUserNeeds = Helpers.CreateOrderedUserNeeds();
 
-            List<UserNeed> sortedUserNeeds = Helpers.CreateUnorderUserNeeds();
+            List<UserNeed> sortedUserNeeds = Helpers.CreateUnOrderUserNeeds();
             sortedUserNeeds.SortByIdRecursive();
 
             Assert.That(sortedUserNeeds, Is.EquivalentTo(orderedUserNeeds));
