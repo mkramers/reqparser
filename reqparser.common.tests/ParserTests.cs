@@ -43,12 +43,8 @@ namespace reqparser.common.tests
             userNeed.AddRequirement(requirement);
             return new[] { userNeed }.ToList();
         }
-    }
 
-    [TestFixture]
-    public class ParserTests
-    {
-        private static string GetEmbeddedResource(string _resourceName, Assembly _assembly)
+        public static string GetEmbeddedResource(string _resourceName, Assembly _assembly)
         {
             _resourceName = FormatResourceName(_assembly, _resourceName);
             using (Stream resourceStream = _assembly.GetManifestResourceStream(_resourceName))
@@ -71,6 +67,11 @@ namespace reqparser.common.tests
                        .Replace("\\", ".")
                        .Replace("/", ".");
         }
+    }
+
+    [TestFixture]
+    public class ParserTests
+    {
         private static IEnumerable SampleTestCases
         {
             // ReSharper disable once UnusedMember.Local
@@ -84,7 +85,7 @@ namespace reqparser.common.tests
         [Test, TestCaseSource(nameof(SampleTestCases))]
         public void ParsesCorrectly(string _textResourceName)
         {
-            string sampleText = GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
+            string sampleText = Helpers.GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
 
             List<UserNeed> expectedUserNeeds = Helpers.CreateOrderedUserNeeds();
 
@@ -96,19 +97,6 @@ namespace reqparser.common.tests
             actualUserNeeds.SortByIdRecursive();
 
             Assert.That(actualUserNeeds, Is.EquivalentTo(expectedUserNeeds));
-        }
-
-        [Test, TestCaseSource(nameof(FailureTestCases))]
-        public void TestFailureMechanisms(string _textResourceName, int _expectedFailLine)
-        {
-            string sampleText = GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
-
-            PseudoParserErrorHandler errorHandler = new PseudoParserErrorHandler();
-            Parser parser = new Parser(errorHandler);
-
-            parser.Parse(sampleText);
-
-            Assert.That(errorHandler.LineNumber, Is.EqualTo(_expectedFailLine));
         }
 
         private static IEnumerable FailureTestCases
@@ -123,6 +111,19 @@ namespace reqparser.common.tests
                 yield return new TestCaseData("testcases/nouserneedforrequirement.txt", 14).SetName("nouserneedforrequirement");
                 yield return new TestCaseData("testcases/parentuserneeddoesnotexist.txt", 14).SetName("parentuserneeddoesnotexist");
             }
+        }
+
+        [Test, TestCaseSource(nameof(FailureTestCases))]
+        public void TestFailureMechanisms(string _textResourceName, int _expectedFailLine)
+        {
+            string sampleText = Helpers.GetEmbeddedResource(_textResourceName, Assembly.GetExecutingAssembly());
+
+            PseudoParserErrorHandler errorHandler = new PseudoParserErrorHandler();
+            Parser parser = new Parser(errorHandler);
+
+            parser.Parse(sampleText);
+
+            Assert.That(errorHandler.LineNumber, Is.EqualTo(_expectedFailLine));
         }
     }
 
