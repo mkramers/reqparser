@@ -23,38 +23,7 @@ namespace reqparser.common
         {
         }
 
-        private static IEnumerable<IReadOnlyList<string>> GetItemTextBlocks(IEnumerable<string> _lines, string _blockStartString)
-        {
-            string[] lines = _lines as string[] ?? _lines.ToArray();
 
-            List<List<string>> textBlocks = new List<List<string>>();
-
-            List<string> currentTextBlock = null;
-
-            foreach (string line in lines)
-            {
-                if (line.StartsWith(_blockStartString))
-                {
-                    if (currentTextBlock != null)
-                    {
-                        textBlocks.Add(currentTextBlock);
-                    }
-
-                    currentTextBlock = new List<string> { line };
-                }
-                else
-                {
-                    currentTextBlock?.Add(line);
-                }
-            }
-
-            if (currentTextBlock != null)
-            {
-                textBlocks.Add(currentTextBlock);
-            }
-
-            return textBlocks;
-        }
 
         private IEnumerable<UserNeed> ParseTree(IEnumerable<IReadOnlyList<string>> _textBlocks)
         {
@@ -152,8 +121,11 @@ namespace reqparser.common
         {
             string[] lines = _text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-            IEnumerable<IReadOnlyList<string>> textBlocks = GetItemTextBlocks(lines, "### ");
-            List<UserNeed> userNeeds = ParseTree(textBlocks).ToList();
+            IEnumerable<IReadOnlyList<string>> textBlocks = TextUtilities.GetItemTextBlocks(lines, new[] { "# ", "## ", "### " });
+
+            IEnumerable<IReadOnlyList<string>> itemBlocks = textBlocks.Where(_textBlock => _textBlock.First().StartsWith("### "));
+
+            List<UserNeed> userNeeds = ParseTree(itemBlocks).ToList();
 
             userNeeds.SortByIdRecursive();
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace reqparser.common
@@ -34,6 +36,41 @@ namespace reqparser.common
         public static string NormalizeLineEndings(this string _text)
         {
             return _text.Replace("\r\n", "\n").Replace("\n", "\r\n");
+        }
+
+        public static IEnumerable<IReadOnlyList<string>> GetItemTextBlocks(IEnumerable<string> _lines, IEnumerable<string> _blockStartTexts)
+        {
+            string[] lines = _lines as string[] ?? _lines.ToArray();
+
+            List<List<string>> textBlocks = new List<List<string>>();
+
+            List<string> currentTextBlock = null;
+
+            string[] blockStartTexts = _blockStartTexts as string[] ?? _blockStartTexts.ToArray();
+
+            foreach (string line in lines)
+            {
+                if (blockStartTexts.Any(_blockStartText => line.StartsWith(_blockStartText)))
+                {
+                    if (currentTextBlock != null)
+                    {
+                        textBlocks.Add(currentTextBlock);
+                    }
+
+                    currentTextBlock = new List<string> { line };
+                }
+                else
+                {
+                    currentTextBlock?.Add(line);
+                }
+            }
+
+            if (currentTextBlock != null)
+            {
+                textBlocks.Add(currentTextBlock);
+            }
+
+            return textBlocks;
         }
     }
 }
