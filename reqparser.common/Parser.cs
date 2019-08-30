@@ -22,10 +22,8 @@ namespace reqparser.common
         public Parser() : this(new ThrowingParserErrorHandler())
         {
         }
-
-
-
-        private IEnumerable<UserNeed> ParseTree(IEnumerable<IReadOnlyList<string>> _textBlocks)
+        
+        private IEnumerable<UserNeed> ParseBlocks(IEnumerable<IReadOnlyList<string>> _textBlocks)
         {
             List<UserNeed> userNeeds = new List<UserNeed>();
             List<(Requirement Requirement, string ParentLabel)> requirementsDetails = new List<(Requirement, string)>();
@@ -54,6 +52,7 @@ namespace reqparser.common
                 }
             }
 
+            //associate items
             Requirement[] requirements = requirementsDetails.Select(_requirement => _requirement.Requirement).ToArray();
 
             foreach ((Specification specification, string parentLabel) in specificationsDetails)
@@ -125,7 +124,7 @@ namespace reqparser.common
 
             IEnumerable<IReadOnlyList<string>> itemBlocks = textBlocks.Where(_textBlock => _textBlock.First().StartsWith("### "));
 
-            List<UserNeed> userNeeds = ParseTree(itemBlocks).ToList();
+            List<UserNeed> userNeeds = ParseBlocks(itemBlocks).ToList();
 
             userNeeds.SortByIdRecursive();
 
