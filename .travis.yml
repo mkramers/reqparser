@@ -2,12 +2,7 @@ language: csharp
 mono: none
 solution: .\reqparser.sln
 dotnet: 2.2
-jobs: 
-  include: 
-  - stage: build
-    script:
-     - dotnet restore 
-     - dotnet build
-  - stage: test
-    script:
-     - dotnet test
+script:
+ - dotnet restore 
+ - dotnet build
+ - dotnet test
