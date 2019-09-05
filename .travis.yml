@@ -1,8 +1,11 @@
 language: csharp
 mono: none
-solution: .\reqparser.sln
+solution: ".\\reqparser.sln"
 dotnet: 2.2
 script:
- - dotnet restore 
- - dotnet build
- - dotnet test
+- dotnet restore
+- dotnet build
+- dotnet test
+env:
+  matrix:
+    secure: GZvKo7VPpcjhEJxXTzCxnubz8a1ftYH2gX9HZaqkB09DhV6bxe3PEAd6ki4j+I5SuXKKXT6Ed+1Ba/lzQCAzqeqytN5NAuO1IlRltYs5qBMavgJ6MaWRK9XYqKdd6ENeAbGxnGBr08LQVZfzb4lMjeJmZJNqOnDAws9DQxi4MFt7bt8Lb7CZdZNNWC//0RmyIjLd6ggH+ecEem1oeDq8KRMWOsqWQCUJKqeaNaN0kpE+lvfqyvAEaf5Ieejh+mhwWz1Gx8gN2Vbz3oZiajDIbllWelvME/5Iz1WvTnkP+CJ84CuYEa0lqSVowJnfMia8qZXcvocuE08bl9OOfgPFZ6371W6TPPylKi0WfAxGAjZgw6k6P8NRNq3XcDjtkgl41/ebagJPAYEsnF5i/d6azxuTK+UzMrObNi9jJiE7GTKao6Yq04lTJk8aKiJFTtMZqVI8y24AJw7+tT3lVbuWZt+ux3q7ka3UePPDGQImfX/X9YpDGPs4WD0qyqzxV3ONyeoNaPmkWy4JVUFe5tX1sFOf73LtVP//XHBY7OONIBpfdPzem3TYGXTv9FPO8k6NEVFONOkDh8D1sv9P5mLT5B8Ncku6iZrHMd6NVxnHsn7rQ7CuTX/lFGXPURLwegyMTVW4C2e0fIBIEVT9+7jT4ZrdjuYkx48YLrdghkRB2jo=
