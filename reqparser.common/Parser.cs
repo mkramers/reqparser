@@ -31,17 +31,18 @@ namespace reqparser.common
 
             foreach (IReadOnlyList<string> textBlock in _textBlocks)
             {
-                if (TryGetItemDetails(textBlock, "UN", out (int Id, string Description, string ParentLabel) userNeedDetails))
+                const string parentPrefix = "#### ";
+                if (TryGetItemDetails(textBlock, $@"^### {"UN"}-[0-9]+$", parentPrefix, out (int Id, string Description, string ParentLabel) userNeedDetails))
                 {
                     UserNeed userNeed = new UserNeed(userNeedDetails.Id, userNeedDetails.Description);
                     userNeeds.Add(userNeed);
                 }
-                else if (TryGetItemDetails(textBlock, "REQ", out (int Id, string Description, string ParentLabel) requirementDetails))
+                else if (TryGetItemDetails(textBlock, $@"^### {"REQ"}-[0-9]+$", parentPrefix, out (int Id, string Description, string ParentLabel) requirementDetails))
                 {
                     Requirement requirement = new Requirement(requirementDetails.Id, requirementDetails.Description);
                     requirementsDetails.Add((requirement, requirementDetails.ParentLabel));
                 }
-                else if (TryGetItemDetails(textBlock, "SPEC", out (int Id, string Description, string ParentLabel) specificationDetails))
+                else if (TryGetItemDetails(textBlock, $@"^### {"SPEC"}-[0-9]+$", parentPrefix, out (int Id, string Description, string ParentLabel) specificationDetails))
                 {
                     Specification specification = new Specification(specificationDetails.Id, specificationDetails.Description);
                     specificationsDetails.Add((specification, specificationDetails.ParentLabel));
@@ -70,13 +71,15 @@ namespace reqparser.common
             return userNeeds;
         }
 
-        private static bool TryGetItemDetails(IReadOnlyList<string> _lines, string _prefix, out (int Id, string Description, string ParentLabel) _details)
+        private static bool TryGetItemDetails(IReadOnlyList<string> _lines, string _searchPattern,
+            string _parentPrefix,
+            out (int Id, string Description, string ParentLabel) _details)
         {
             _details = (0, "", "");
 
             string firstLine = _lines.First();
 
-            Match specificationsMatch = Regex.Match(firstLine, $@"^### {_prefix}-[0-9]+$");
+            Match specificationsMatch = Regex.Match(firstLine, _searchPattern);
             if (!specificationsMatch.Success)
             {
                 return false;
@@ -85,11 +88,10 @@ namespace reqparser.common
             _details.Id = int.Parse(specificationsMatch.Value.Split('-').Last());
 
             string parentLine = _lines[1];
-            const string parentPrefix = "#### ";
-            bool hasParent = parentLine.StartsWith(parentPrefix);
+            bool hasParent = parentLine.StartsWith(_parentPrefix);
             if (hasParent)
             {
-                _details.ParentLabel = parentLine.Substring(parentPrefix.Length, parentLine.Length - parentPrefix.Length);
+                _details.ParentLabel = parentLine.Substring(_parentPrefix.Length, parentLine.Length - _parentPrefix.Length);
             }
 
             List<string> remainingText = _lines.Skip(hasParent ? 2 : 1).ToList();
@@ -120,9 +122,12 @@ namespace reqparser.common
         {
             string[] lines = _text.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-            IEnumerable<IReadOnlyList<string>> textBlocks = TextUtilities.GetItemTextBlocks(lines, new[] { "# ", "## ", "### " });
+            const string blockStart = "### ";
+            string[] blockStartTexts = { "# ", "## ", blockStart };
 
-            IEnumerable<IReadOnlyList<string>> itemBlocks = textBlocks.Where(_textBlock => _textBlock.First().StartsWith("### "));
+            IEnumerable<IReadOnlyList<string>> textBlocks = TextUtilities.GetItemTextBlocks(lines, blockStartTexts);
+
+            IEnumerable<IReadOnlyList<string>> itemBlocks = textBlocks.Where(_textBlock => _textBlock.First().StartsWith(blockStart));
 
             List<UserNeed> userNeeds = ParseBlocks(itemBlocks).ToList();
 
