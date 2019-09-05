@@ -35,7 +35,7 @@ namespace reqparser.common
 
         public static string NormalizeLineEndings(this string _text)
         {
-            return _text.Replace("\r\n", "\n").Replace("\n", "\r\n");
+            return _text.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
         }
 
         public static IEnumerable<IReadOnlyList<string>> GetItemTextBlocks(IEnumerable<string> _lines, IEnumerable<string> _blockStartTexts)
